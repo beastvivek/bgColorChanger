@@ -10,24 +10,27 @@ const div = (styles, content) => `<div style="${styles}">${content}</div>`;
 
 const generateHtml = (limit) => {
   const color = new Color(randomInt(limit), randomInt(limit), randomInt(limit));
-  const bgColor = new Style('background-color', color.getRGB()).getStyle();
-  const display = new Style('display', 'flex').getStyle();
-  const justification = new Style('justify-content', 'center').getStyle();
-  const alignment = new Style('align-items', 'center').getStyle();
-  const divTag = div('font-size:50px', color.getRGB());
-  const bodyStyles = `${bgColor};${display};${justification};${alignment}`;
-  const bodyTag = body(bodyStyles, divTag);
+  const style = new Style();
+  style.addStyle('background-color', color.getRGB());
+  style.addStyle('display', 'flex');
+  style.addStyle('justify-content', 'center');
+  style.addStyle('align-items', 'center');
+  const divTag = div('font-size:50px;color:white', color.getRGB());
+  const bodyTag = body(style.getStyle(), divTag);
   return html(head(meta()) + bodyTag);
 };
 
 class Style {
-  constructor(name, value) {
-    this.name = name;
-    this.value = value;
+  constructor() {
+    this.styles = [];
+  }
+
+  addStyle(name, value) {
+    this.styles.push(`${name}:${value}`);
   }
 
   getStyle() {
-    return `${this.name}:${this.value}`;
+    return this.styles.join(';');
   }
 }
 
