@@ -1,5 +1,4 @@
 /* eslint-disable max-statements */
-/* eslint-disable max-len */
 const fs = require('fs');
 
 const randomInt = (limit) => Math.floor(Math.random() * limit);
@@ -7,7 +6,7 @@ const toHex = (number) => number.toString(16);
 
 const generateStyle = (color) => {
   const style = new Style();
-  style.addStyle('background-color', color.getHex());
+  style.addStyle('background-color', color.getRGB());
   style.addStyle('display', 'flex');
   style.addStyle('justify-content', 'center');
   style.addStyle('align-items', 'center');
@@ -34,11 +33,6 @@ class Tag {
   }
 }
 
-const html = (content) => `<html>${content}</html>`;
-const head = (content) => `<head>${content}</head>`;
-const meta = () => '<meta http-equiv="refresh" content="1">';
-const div = (styles, content) => `<div style="${styles}">${content}</div>`;
-
 class Html {
   constructor(limit) {
     this.limit = limit;
@@ -50,11 +44,16 @@ class Html {
     const blue = randomInt(this.limit);
     const color = new Color(red, green, blue);
     const style = generateStyle(color);
-    const divTag = div('font-size:50px;color:white', color.getRGB());
-    const bodyTag = new Tag('body', divTag);
+    const divTag = new Tag('div', color.getRGB());
+    divTag.addStyle('font-size:50px;color:white');
+    const div = divTag.getTag();
+    const bodyTag = new Tag('body', div);
     bodyTag.addStyle(style);
     const body = bodyTag.getTag();
-    return html(head(meta()) + body);
+    const headTag = new Tag('head', '');
+    const head = headTag.getTag();
+    const htmlTag = new Tag('html', head + body);
+    return htmlTag.getTag();
   }
 }
 
@@ -89,6 +88,6 @@ class Color {
 }
 
 setInterval(() => {
-  const html = new Html(100).generateHtml();
+  const html = new Html(255).generateHtml();
   fs.writeFileSync('./index.html', html, 'utf8');
 }, 1000);
