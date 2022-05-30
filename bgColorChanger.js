@@ -1,24 +1,62 @@
+/* eslint-disable max-statements */
+/* eslint-disable max-len */
 const fs = require('fs');
 
 const randomInt = (limit) => Math.floor(Math.random() * limit);
 const toHex = (number) => number.toString(16);
-const html = (content) => `<html>${content}</html>`;
-const head = (content) => `<head>${content}</head>`;
-const meta = () => '<meta http-equiv="refresh" content="1">';
-const body = (styles, content) => `<body style="${styles}">${content}</body>`;
-const div = (styles, content) => `<div style="${styles}">${content}</div>`;
 
-const generateHtml = (limit) => {
-  const color = new Color(randomInt(limit), randomInt(limit), randomInt(limit));
+const generateStyle = (color) => {
   const style = new Style();
-  style.addStyle('background-color', color.getRGB());
+  style.addStyle('background-color', color.getHex());
   style.addStyle('display', 'flex');
   style.addStyle('justify-content', 'center');
   style.addStyle('align-items', 'center');
-  const divTag = div('font-size:50px;color:white', color.getRGB());
-  const bodyTag = body(style.getStyle(), divTag);
-  return html(head(meta()) + bodyTag);
+  return style.getStyle();
 };
+
+class Tag {
+  constructor(tag, content) {
+    this.tag = tag;
+    this.content = content;
+    this.attrs = [];
+  }
+
+  getTag() {
+    return `<${this.tag} ${this.attrs.join(' ')}>${this.content}</${this.tag}>`;
+  }
+
+  addClass(className) {
+    this.attrs.push(`class="${className}"`);
+  }
+
+  addStyle(style) {
+    this.attrs.push(`style="${style}"`);
+  }
+}
+
+const html = (content) => `<html>${content}</html>`;
+const head = (content) => `<head>${content}</head>`;
+const meta = () => '<meta http-equiv="refresh" content="1">';
+const div = (styles, content) => `<div style="${styles}">${content}</div>`;
+
+class Html {
+  constructor(limit) {
+    this.limit = limit;
+  }
+
+  generateHtml() {
+    const red = randomInt(this.limit);
+    const green = randomInt(this.limit);
+    const blue = randomInt(this.limit);
+    const color = new Color(red, green, blue);
+    const style = generateStyle(color);
+    const divTag = div('font-size:50px;color:white', color.getRGB());
+    const bodyTag = new Tag('body', divTag);
+    bodyTag.addStyle(style);
+    const body = bodyTag.getTag();
+    return html(head(meta()) + body);
+  }
+}
 
 class Style {
   constructor() {
@@ -51,6 +89,6 @@ class Color {
 }
 
 setInterval(() => {
-  const html = generateHtml(100);
+  const html = new Html(100).generateHtml();
   fs.writeFileSync('./index.html', html, 'utf8');
 }, 1000);
