@@ -1,4 +1,3 @@
-/* eslint-disable max-statements */
 const fs = require('fs');
 
 const randomInt = (limit) => Math.floor(Math.random() * limit);
@@ -11,6 +10,32 @@ const generateStyle = (color) => {
   style.addStyle('justify-content', 'center');
   style.addStyle('align-items', 'center');
   return style.getStyle();
+};
+
+const generateHtml = (head, body) => {
+  const htmlTag = new Tag('html', head + body);
+  const html = htmlTag.getTag();
+  return html;
+};
+
+const generateHead = () => {
+  const headTag = new Tag('head', '');
+  const head = headTag.getTag();
+  return head;
+};
+
+const generateBody = (div, style) => {
+  const bodyTag = new Tag('body', div);
+  bodyTag.addStyle(style);
+  const body = bodyTag.getTag();
+  return body;
+};
+
+const generateDiv = (color) => {
+  const divTag = new Tag('div', color.getRGB());
+  divTag.addStyle('font-size:50px;color:white');
+  const div = divTag.getTag();
+  return div;
 };
 
 class Tag {
@@ -38,22 +63,17 @@ class Html {
     this.limit = limit;
   }
 
-  generateHtml() {
+  getHtml() {
     const red = randomInt(this.limit);
     const green = randomInt(this.limit);
     const blue = randomInt(this.limit);
     const color = new Color(red, green, blue);
     const style = generateStyle(color);
-    const divTag = new Tag('div', color.getRGB());
-    divTag.addStyle('font-size:50px;color:white');
-    const div = divTag.getTag();
-    const bodyTag = new Tag('body', div);
-    bodyTag.addStyle(style);
-    const body = bodyTag.getTag();
-    const headTag = new Tag('head', '');
-    const head = headTag.getTag();
-    const htmlTag = new Tag('html', head + body);
-    return htmlTag.getTag();
+    const div = generateDiv(color);
+    const body = generateBody(div, style);
+    const head = generateHead();
+    const html = generateHtml(head, body);
+    return html;
   }
 }
 
@@ -88,6 +108,6 @@ class Color {
 }
 
 setInterval(() => {
-  const html = new Html(255).generateHtml();
+  const html = new Html(255).getHtml();
   fs.writeFileSync('./index.html', html, 'utf8');
 }, 1000);
